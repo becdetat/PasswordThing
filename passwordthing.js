@@ -26,7 +26,7 @@ pwdthing.thingTemplate = null;
 
 pwdthing.refreshThings = function(){
 	pwdthing.webdb.db.transaction(function(t){
-		t.executeSql('SELECT * FROM things', [], function(tx, rx){
+		t.executeSql('SELECT * FROM things ORDER BY title', [], function(tx, rx){
 			var html = '';
 			for (var i = 0; i < rx.rows.length; i ++) {
 				var row = rx.rows.item(i);
@@ -144,6 +144,7 @@ $(function(){
 	});
 	$('#view-website').click(function(){
 		var url = $(this).val();
+		if (url == '') return;
 		if (url.indexOf('http://') == -1) url = 'http://' + url;
 		window.open(url);
 	});
