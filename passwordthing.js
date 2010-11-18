@@ -69,6 +69,38 @@ pwdthing.deleteThing = function(id) {
 	return false;
 }
 
+pwdthing.editThing = function(id) {
+	pwdthing.webdb.db.transaction(function(t){
+		t.executeSql('SELECT * FROM things WHERE id = ?', [id], function(tx, rx) {
+			if (rx.rows.length == 0) {
+				alert('Error loading thing');
+			} else {
+				pwdthing.viewID = id;
+				var row = rx.rows.item(0);
+				$('#edit-title').val(row.title);
+				$('#edit-username').val(row.username);
+				$('#edit-password').val(row.password);
+				$('#edit-website').val(row.website);
+				$.mobile.changePage('#edit');
+			}
+		});
+	});
+};
+
+pwdthing.saveEditedThing = function(id) {
+	var title = $('#edit-title').val();
+	var username = $('#edit-username').val();
+	var password = $('#edit-password').val();
+	var website = $('#edit-website').val();
+	pwdthing.webdb.db.transaction(function(t){
+		t.executeSql(
+			'UPDATE things SET title = ?, username = ?, password = ?, website = ? WHERE id = ?',
+			[title, username, password, website, id]);
+		pwdthing.refreshThings();
+		pwdthing.viewThing(id);
+	});
+};
+
 pwdthing.addAuth = function(){
 	var title = $('#add-title').val();
 	var username = $('#add-username').val();
@@ -108,6 +140,19 @@ $(function(){
 	$('#reset-db').click(pwdthing.resetDB);
 	$('#delete').click(function() {
 		pwdthing.deleteThing(pwdthing.viewID);
+		return false;
+	});
+	$('#view-website').click(function(){
+		var url = $(this).val();
+		if (url.indexOf('http://') == -1) url = 'http://' + url;
+		window.open(url);
+	});
+	$('#edit').click(function(){
+		pwdthing.editThing(pwdthing.viewID);
+		return false;
+	});
+	$('#edit form').submit(function(){
+		pwdthing.saveEditedThing(pwdthing.viewID);
 		return false;
 	});
 	pwdthing.refreshThings();	
