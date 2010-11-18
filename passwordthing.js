@@ -44,11 +44,11 @@ pwdthing.viewThing = function(id) {
 	pwdthing.webdb.db.transaction(function(t){
 		t.executeSql('SELECT * FROM things WHERE id = ?', [id], function(tx, rx) {
 			if (rx.rows.length == 0) {
-				alert('Error loading thing');
+				alert('Error loading item');
 			} else {
 				pwdthing.viewID = id;
 				var row = rx.rows.item(0);
-				$('#view-title').val(row.title);
+				$('#view h1').text(row.title);
 				$('#view-username').val(row.username);
 				$('#view-password').val(row.password);
 				$('#view-website').val(row.website);
@@ -59,7 +59,7 @@ pwdthing.viewThing = function(id) {
 };
 
 pwdthing.deleteThing = function(id) {
-	if (confirm('Really delete?')) {
+	if (confirm('Really delete this item?')) {
 		pwdthing.webdb.db.transaction(function(t) {
 			t.executeSql('DELETE FROM things WHERE id = ?', [id]);
 			pwdthing.refreshThings();
@@ -73,7 +73,7 @@ pwdthing.editThing = function(id) {
 	pwdthing.webdb.db.transaction(function(t){
 		t.executeSql('SELECT * FROM things WHERE id = ?', [id], function(tx, rx) {
 			if (rx.rows.length == 0) {
-				alert('Error loading thing');
+				alert('Error loading item');
 			} else {
 				pwdthing.viewID = id;
 				var row = rx.rows.item(0);
