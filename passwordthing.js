@@ -42,7 +42,7 @@ pwdthing.refreshThings = function(){
 pwdthing.viewID = null;
 pwdthing.viewThing = function(id) {
 	pwdthing.webdb.db.transaction(function(t){
-		t.executeSql('SELECT * FROM things WHERE rowid = ?', [id], function(tx, rx) {
+		t.executeSql('SELECT * FROM things WHERE id = ?', [id], function(tx, rx) {
 			if (rx.rows.length == 0) {
 				alert('Error loading thing');
 			} else {
@@ -57,6 +57,17 @@ pwdthing.viewThing = function(id) {
 		});
 	});
 };
+
+pwdthing.deleteThing = function(id) {
+	if (confirm('Really delete?')) {
+		pwdthing.webdb.db.transaction(function(t) {
+			t.executeSql('DELETE FROM things WHERE id = ?', [id]);
+			pwdthing.refreshThings();
+			$.mobile.changePage('#home');
+		});
+	}
+	return false;
+}
 
 pwdthing.addAuth = function(){
 	var title = $('#add-title').val();
@@ -95,5 +106,9 @@ $(function(){
 		return false;
 	});
 	$('#reset-db').click(pwdthing.resetDB);
+	$('#delete').click(function() {
+		pwdthing.deleteThing(pwdthing.viewID);
+		return false;
+	});
 	pwdthing.refreshThings();	
 });
