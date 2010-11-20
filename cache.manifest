@@ -2,8 +2,8 @@ CACHE MANIFEST
 passwordthing.html
 passwordthing.js
 jquery-1.4.4.min.js
-jquery-mobile-1.0a2.min.js
-jquery-mobile-1.0a2.min.css
+jquery.mobile-1.0a2.min.js
+jquery.mobile-1.0a2.min.css
 images/ajax-loader.png
 images/form-check-off.png
 images/form-check-on.png
