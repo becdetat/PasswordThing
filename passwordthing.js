@@ -162,21 +162,30 @@ $(function(){
 
 
 pwdthing.dropbox = null;
-pwdthing.getDropboxToken = function(email, pwd) {
+pwdthing.getDropboxToken = function(callback) {
 	$.ajax({
-		'': ''
+		'data': $('#get-dropbox-token form').serialize(),
+		'url': 'get-dropbox-token.php',
+		'dataType': 'json',
+		type: 'POST',
+		success: function(data, status) {
+			pwdthing.dropbox = data;
+		},
+		error: function(req, status, error) {
+			pwdthing.dropbox = null;
+		},
+		complete: callback
 	});
 };
 $(function(){
 	$('#save-dropbox-token').click(function(){
-		var email = $('#dropbox-email').val();
-		var pwd = $('#dropbox-password').val();
-		pwdthing.dropbox = pwdthing.getDropboxToken(email, password);
-		if (pwdthing == 400) {
-			alert('Could not authenticate, check your username and password');
-		} else (pwdthing == 401) {
-			alert('Bad or expired token, try again');
-		}
+		pwdthing.getDropboxToken(function() {
+			if (pwdthing.dropbox == null) {
+				alert('Could not authenticate, check your username and password');
+			} else {
+				$.mobile.changePage('#options');
+			}
+		});
 		return false;
 	});
 });
