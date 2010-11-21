@@ -3,12 +3,10 @@ Password Thing
 A HTML 5 based web app for storing usernames and passwords in the local
 database.
 
-This project uses jQuery Mobile (Alpha 2) for the user interface. Currently 
-jQuery Mobile is delivered via a CDN, once a stable version has been released 
-I will bundle it with the app.
+This project uses jQuery Mobile (Alpha 2) for the user interface.
 
 I'm planning to include backup to a Dropbox account for off-device storage in
 a later version.
 
-This has been tested in Chrome and an iOS 4 iPad only. There are some issues
+This has been tested in Chrome and an iOS 4 iPod only. There are some issues
 with rendering that may be partly due to jQuery Mobile still being in alpha.

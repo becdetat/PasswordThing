@@ -158,3 +158,25 @@ $(function(){
 	});
 	pwdthing.refreshThings();	
 });
+
+
+
+pwdthing.dropbox = null;
+pwdthing.getDropboxToken = function(email, pwd) {
+	$.ajax({
+		'': ''
+	});
+};
+$(function(){
+	$('#save-dropbox-token').click(function(){
+		var email = $('#dropbox-email').val();
+		var pwd = $('#dropbox-password').val();
+		pwdthing.dropbox = pwdthing.getDropboxToken(email, password);
+		if (pwdthing == 400) {
+			alert('Could not authenticate, check your username and password');
+		} else (pwdthing == 401) {
+			alert('Bad or expired token, try again');
+		}
+		return false;
+	});
+});

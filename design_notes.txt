@@ -1,0 +1,21 @@
+DROPBOX INTEGRATION
+
+For the app to integrate with Dropbox I've added a server-side proxy to get the authentication token from the Dropbox API. The proxy uses the [PHP Dropbox library implementation][1] by [Evert Pot][2], which depends on either the PHP OAuth extension or the OAuth PEAR package. Since I have no control over my shared host I've integrated the PEAR package and its dependencies directly.
+
+DEPENDENCIES
+- [jQuery][7]
+- [jQuery Mobile][3]
+- [PHP Dropbox library implementation][1] by [Evert Pot][2]
+- [HTTP_OAuth][4] by Jeff Hodsdon
+- [HTTP_Request2][5] by Alexey Borzov
+- [Net_URL2][6] by Christian Schmidt
+- The PEAR_Extension class, part of PEAR
+
+
+[1]: http://code.google.com/p/dropbox-php/
+[2]: http://www.rooftopsolutions.nl
+[3]: http://jquerymobile.com
+[4]: http://pear.php.net/package/HTTP_OAuth
+[5]: http://pear.php.net/package/HTTP_Request2
+[6]: http://pear.php.net/package/Net_URL2
+[7]: http://jquery.com
