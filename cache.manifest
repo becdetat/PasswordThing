@@ -5,6 +5,7 @@ passwordthing.js
 jquery-1.4.4.min.js
 jquery.mobile-1.0a2.min.js
 jquery.mobile-1.0a2.min.css
+json2.min.js
 images/ajax-loader.png
 images/form-check-off.png
 images/form-check-on.png
@@ -18,3 +19,5 @@ images/icons-36-white.png
 
 NETWORK:
 get-dropbox-token.php
+backup-to-dropbox.php
+restore-from-dropbox.php
