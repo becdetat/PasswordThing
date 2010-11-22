@@ -234,14 +234,19 @@ pwdthing.dropbox.backupToDropbox = function(){
 pwdthing.dropbox.generateBackup = function(callback){
 	pwdthing.webdb.db.transaction(function(t){
 		t.executeSql('SELECT * FROM things ORDER BY title', [], function(tx, rx){
-			var data = '';
+			var data = [];
 			for (var i = 0; i < rx.rows.length; i ++) {
 				var row = rx.rows.item(i);
-				var title = escape(row.title);
-				var username = escape(row.username);
-				var password = escape(row.password);
-				var website = escape(row.website);
-				data += '"'+title+'","'+username+'","'+password+'","'+website+'"\r\n';
+				var title = row.title;
+				var username = row.username;
+				var password = row.password;
+				var website = row.website;
+				data.push({
+					title: row.title,
+					username: row.username,
+					password: row.password,
+					website: row.website
+				});
 			}
 			callback(data);
 		});
@@ -259,8 +264,8 @@ pwdthing.dropbox.postBackupData = function(data, successCallback, errorCallback)
 		pwdthing.dropbox.token.token_secret + '\r\n' +
 		'--' + boundary + '\r\n' +
 		'Content-Disposition: form-data; name="file";filename="' + filename + '"\r\n' +
-		'Content-type: plain/text\r\n\r\n' +
-		data + '\r\n' +
+		'Content-type: text/json\r\n\r\n' +
+		JSON.stringify(data) + '\r\n' +
 		'--' + boundary + '--';		
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', 'backup-to-dropbox.php', true);
@@ -274,7 +279,35 @@ pwdthing.dropbox.postBackupData = function(data, successCallback, errorCallback)
 	};
 	xhr.send(body);
 };
-pwdthing.restoreFromDropbox = function(){};
+pwdthing.dropbox.restoreFromDropbox = function(){
+	$.ajax({
+		data: pwdthing.dropbox.token,
+		url: 'restore-from-dropbox.php',
+		dataType: 'json',
+		type: 'GET',
+		success: function(data, status) {
+			pwdthing.webdb.db.transaction(function(t) {
+				t.executeSql('DELETE FROM things');
+				for (var i = 0; i < data.length; i ++) {
+					var thing = data[i];
+					t.executeSql(
+						'INSERT INTO things(title, username, password, website) VALUES(?, ?, ?, ?)', 
+						[thing.title, thing.username, thing.password, thing.website], 
+						function(tx, rx){},
+						function(tx, error) {
+							alert(error.message);
+						}
+					);
+				}
+				pwdthing.refreshThings();
+				alert('Restored ' + data.length + ' items');
+			});
+		},
+		error: function(req, status, error) {
+			alert('Error downloading the backup');
+		}
+	});	
+};
 $(function(){
 	$('#backup-to-dropbox').click(pwdthing.dropbox.backupToDropbox);
 	$('#restore-from-dropbox').click(pwdthing.dropbox.restoreFromDropbox);
