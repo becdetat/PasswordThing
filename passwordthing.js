@@ -11,11 +11,13 @@ pwdthing.webdb.open = function(){
 pwdthing.webdb.createTable = function() {
 	pwdthing.webdb.db.transaction(function(t) {
 		t.executeSql('CREATE TABLE IF NOT EXISTS things(id INTEGER PRIMARY KEY ASC, title, username, password, website)');
+		t.executeSql('CREATE TABLE IF NOT EXISTS dropbox_token(token, token_secret)');
 	});
 };
 pwdthing.webdb.dropTable = function(){
 	pwdthing.webdb.db.transaction(function(t){
 		t.executeSql('DROP TABLE things');
+		t.executeSql('DROP TABLE dropbox_token');
 	});
 };
 pwdthing.webdb.onError = function(tx, error) {
@@ -161,26 +163,53 @@ $(function(){
 
 
 
-pwdthing.dropbox = null;
-pwdthing.getDropboxToken = function(callback) {
+pwdthing.dropbox = {};
+pwdthing.dropbox.token = null;
+pwdthing.dropbox.getTokenFromDb = function(){
+	pwdthing.webdb.db.transaction(function(t){
+		t.executeSql('SELECT * FROM dropbox_token', [], function(tx, rx) {
+			if (rx.rows.length == 0) {
+				pwdthing.dropbox.token = null;
+			} else {
+				var row = rx.rows.item(0);
+				pwdthing.dropbox.token = {
+					token: row.token,
+					token_secret: row.token_secret
+				};
+			}
+		});
+	});
+};
+pwdthing.dropbox.getDropboxToken = function(callback) {
+	pwdthing.webdb.db.transaction(function(t) { t.executeSql('DELETE FROM dropbox_token'); });
 	$.ajax({
 		'data': $('#get-dropbox-token form').serialize(),
 		'url': 'get-dropbox-token.php',
 		'dataType': 'json',
 		type: 'POST',
 		success: function(data, status) {
-			pwdthing.dropbox = data;
+			pwdthing.dropbox.token = data;
+			pwdthing.webdb.db.transaction(function(t) {
+				t.executeSql(
+					'INSERT INTO dropbox_token(token, token_secret) VALUES(?, ?)', 
+					[pwdthing.dropbox.token.token, pwdthing.dropbox.token.token_secret], 
+					function(tx, rx){ },
+					function(tx, error) {
+						alert(error.message);
+					}
+				);
+			});
 		},
 		error: function(req, status, error) {
-			pwdthing.dropbox = null;
+			pwdthing.dropbox.token = null;
 		},
 		complete: callback
 	});
 };
 $(function(){
 	$('#save-dropbox-token').click(function(){
-		pwdthing.getDropboxToken(function() {
-			if (pwdthing.dropbox == null) {
+		pwdthing.dropbox.getDropboxToken(function() {
+			if (pwdthing.dropbox.token == null) {
 				alert('Could not authenticate, check your username and password');
 			} else {
 				$.mobile.changePage('#options');
@@ -188,4 +217,66 @@ $(function(){
 		});
 		return false;
 	});
+});
+
+pwdthing.dropbox.backupToDropbox = function(){
+	pwdthing.dropbox.generateBackup(function(data){
+		pwdthing.dropbox.postBackupData(
+			data, 
+			function() {
+				alert('Backup complete');
+			}, function() {
+				alert('Error');
+				alert(xhr.status);
+			});
+	});
+};
+pwdthing.dropbox.generateBackup = function(callback){
+	pwdthing.webdb.db.transaction(function(t){
+		t.executeSql('SELECT * FROM things ORDER BY title', [], function(tx, rx){
+			var data = '';
+			for (var i = 0; i < rx.rows.length; i ++) {
+				var row = rx.rows.item(i);
+				var title = escape(row.title);
+				var username = escape(row.username);
+				var password = escape(row.password);
+				var website = escape(row.website);
+				data += '"'+title+'","'+username+'","'+password+'","'+website+'"\r\n';
+			}
+			callback(data);
+		});
+	});
+};
+pwdthing.dropbox.postBackupData = function(data, successCallback, errorCallback) {
+	var  filename = 'test.txt';	
+	var boundary = '----0E512BC3CDAA3FC851EFB1EFF91A2DCA';
+	var body = 
+		'--' + boundary + '\r\n' +
+		'Content-Disposition: form-data; name="token"\r\n\r\n' +
+		pwdthing.dropbox.token.token + '\r\n' +
+		'--' + boundary + '\r\n' +
+		'Content-Disposition: form-data; name="token_secret"\r\n\r\n' +
+		pwdthing.dropbox.token.token_secret + '\r\n' +
+		'--' + boundary + '\r\n' +
+		'Content-Disposition: form-data; name="file";filename="' + filename + '"\r\n' +
+		'Content-type: plain/text\r\n\r\n' +
+		data + '\r\n' +
+		'--' + boundary + '--';		
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', 'backup-to-dropbox.php', true);
+	xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
+	xhr.onreadystatechange = function(){
+		if (xhr.readyState == 4 && xhr.status == 200) {
+			successCallback();
+		} else if (xhr.readyState == 4) {
+			errorCallback();
+		}
+	};
+	xhr.send(body);
+};
+pwdthing.restoreFromDropbox = function(){};
+$(function(){
+	$('#backup-to-dropbox').click(pwdthing.dropbox.backupToDropbox);
+	$('#restore-from-dropbox').click(pwdthing.dropbox.restoreFromDropbox);
+	pwdthing.dropbox.getTokenFromDb();
 });
