@@ -1,12 +1,9 @@
 Password Thing
 
-A HTML 5 based web app for storing usernames and passwords in the local
-database.
+A HTML 5 based web app for storing usernames and passwords in the local database.
 
 This project uses jQuery Mobile (Alpha 2) for the user interface.
 
-I'm planning to include backup to a Dropbox account for off-device storage in
-a later version.
+Basic backup and restore functionality is provided using Dropbox. A Dropbox account will need to be created. To connect to the Dropbox account, in Options select Get Dropbox Token and log in.
 
-This has been tested in Chrome and an iOS 4 iPod only. There are some issues
-with rendering that may be partly due to jQuery Mobile still being in alpha.
+This has been tested in Chrome and an iOS 4 iPod only. There are some issues with rendering that may be partly due to jQuery Mobile still being in alpha.

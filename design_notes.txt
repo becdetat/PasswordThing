@@ -10,6 +10,7 @@ DEPENDENCIES
 - [HTTP_Request2][5] by Alexey Borzov
 - [Net_URL2][6] by Christian Schmidt
 - The PEAR_Extension class, part of PEAR
+- [json2.js][8] by Douglas Crockford
 
 
 [1]: http://code.google.com/p/dropbox-php/
@@ -19,3 +20,4 @@ DEPENDENCIES
 [5]: http://pear.php.net/package/HTTP_Request2
 [6]: http://pear.php.net/package/Net_URL2
 [7]: http://jquery.com
+[8]: https://github.com/douglascrockford/JSON-js/blob/master/json2.js
